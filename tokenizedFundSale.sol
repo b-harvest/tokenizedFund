@@ -13,7 +13,7 @@ contract RefundFundInterface {
     function collectRefundToken(address _investor, uint256 _collectTokenAmount) public returns (bool);
 }
 
-contract BinanceAPITestInterface {
+contract OracleContractInterface {
     function updateData(string __signedUrl) public payable;
     function changeControlWallet(address _controlWallet) public;
 }
@@ -442,7 +442,7 @@ contract TokenizedFundSale {
     
     function updateDataNow(string _signedUrl) public adminOnly {
         require(msg.sender == adminWallet); // only admin can update data
-        BinanceAPITestInterface(oraclizeAddress).updateData(_signedUrl); // request update to oracle
+        OracleContractInterface(oraclizeAddress).updateData(_signedUrl); // request update to oracle
     }
     
     function changeGetResult(string _getResult) public {

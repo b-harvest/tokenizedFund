@@ -25,7 +25,7 @@ contract OracleContract is usingOraclize {
     }
 
     function __callback(bytes32 myid, string result) public {
-        require(msg.sender == oraclize_cbAddress());
+        require(msg.sender == oraclize_cbAddress());  // #TODO: oraclize_cbAddress not defined 
         getResult = result;
         LogPriceUpdated(result);
         PriceCallTestInterface(controlWallet).changeGetResult(getResult); // update data in main contract
@@ -44,6 +44,8 @@ contract OracleContract is usingOraclize {
             oraclize_query("computation", [_query,_method,_url,_kwargs], CUSTOM_GASLIMIT);
         }
     }
+
+    // add change admin wallet
     
     function clearContractBalance() public {
         require(msg.sender == adminWallet); // only admin can clear contract balance

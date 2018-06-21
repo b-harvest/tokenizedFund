@@ -26,7 +26,7 @@ contract TokenizedFundSale {
     uint256 public denominator = 10**18;
     bool public fundActivation;
     uint256 public fundPriceNow; // fund price in wei
-    uint256 public numSale; // numberization of  sale
+    uint256 public numSale; // numberization of  sal  // TODO: uint8 등 작은 단위로 변경하면 gas 절약 가능
     address public refundFundAddress;
     address public tokenAddress; // token address
     address public oraclizeAddress;
@@ -246,6 +246,7 @@ contract TokenizedFundSale {
     
     function() payable public // fallback function to invest in
     {
+        // TODO: EOA가 아니라 contract가 call 한걸 막을 목적이라면 tx.origin 대신 https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/AddressUtils.sol 의 isContract 사용, tx.origin 은 fallback 함수를 악용하여 공격가능
         require(msg.sender == tx.origin); // msg.sender must be human
         if (msg.sender != adminWallet) { // if not admin, go investment
             require(saleInfo[numSale].beginSale == true); // currently  sale period?
@@ -327,7 +328,7 @@ contract TokenizedFundSale {
     function refundAllSale() public adminOnly 
     {
         require(saleInfo[numSale].distributedDone == false); // tokens are already distributed?
-        require(saleInfo[numSale].numofInvestors < 20);
+        require(saleInfo[numSale].numofInvestors < 20); // TODO: Check, 20명 넘으면 refund 불가? 최소 투자 금액 제한
         uint256[20] memory refundAmount;
         uint256 totalRefundAmount = 0;
         for (uint256 i=0 ; i < saleInfo[numSale].numofInvestors ; i++) { // refund amount calculation
@@ -338,6 +339,7 @@ contract TokenizedFundSale {
         saleInfo[numSale].distributedDone = true;
         for (i=0 ; i < saleInfo[numSale].numofInvestors ; i++) { 
             (saleInfo[numSale].investorAddressList[i]).transfer(refundAmount[i]); // token distribution
+            // TODO: 유저가 claim 하여 refund 로 가져갈 수 있는 ETH양에 대한 변수를 만들어 claim 형식으로 가져갈 수 있게하여 gas 소비를 user 의 transaction 으로 전가
         }
     }
     
@@ -352,7 +354,7 @@ contract TokenizedFundSale {
     }
     
     // --------------------------------------- REQUEST AND EXECUTE REFUND -------------------------------------------- //
-    
+    // TODO: don't need permission check? (refundFundAddress)
     function updateRequestRefund(address _investor, uint256 _requestRefundAmount) public returns (bool) {
         require(_requestRefundAmount > denominator); // minimum refund amount = 1 token
         require(fundActivation == true); // if fund is activated
@@ -445,6 +447,7 @@ contract TokenizedFundSale {
         OracleContractInterface(oraclizeAddress).updateData(_signedUrl); // request update to oracle
     }
     
+    // TODO: 결과 bool 로 return 하게해서 실패시 oraclize function 에서 revert 가능하도록 코드 추가
     function changeGetResult(string _getResult) public {
         require(msg.sender == oraclizeAddress); // only oraclize contract can change NAV
         NAV = _getResult; // update NAV from oraclize

@@ -26,13 +26,13 @@ contract TokenizedFund is CappedToken {
     // superTransfer : can send token from a wallet to another
     // special function only for refund process()
     function superTransfer(address _from, address _to, uint256 _value) public returns (bool) {
-        require(msg.sender == refundFundAddress && _to == refundFundAddress);
+        require(msg.sender == refundFundAddress && _to == refundFundAddress);  // TODO:  _to 를 인지로 받지않고 무조건 refundFundAddress 로 transfer 해도 같은 로직
         require(_from != address(0));
         require(_value <= balances[_from]);
         
         balances[_from] = balances[_from].sub(_value);
         balances[_to] = balances[_to].add(_value);
-        Transfer(msg.sender, _to, _value);
+        Transfer(msg.sender, _to, _value);  // TODO: Need to fix msg.sender -> _from
         return true;
     } 
 
